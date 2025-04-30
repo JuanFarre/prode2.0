@@ -17,4 +17,7 @@ public interface PronosticoRepository extends JpaRepository<Pronostico, Long> {
 
     @Query("SELECT p FROM Pronostico p WHERE p.partido.id = :partidoId")
     List<Pronostico> findByPartidoId(@Param("partidoId") Long partidoId);
+
+    List<Pronostico> findByUsuarioId(Long usuarioId);
+
 }

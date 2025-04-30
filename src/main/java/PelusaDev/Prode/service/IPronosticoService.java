@@ -18,7 +18,11 @@ public interface IPronosticoService {
 
     List<Pronostico> findByPartidoFechaId(Long fechaId);
 
-    public List<RankingDTO> getRankingPorFecha(Long fechaId);
-
     List<Pronostico> findByUsuarioAndFecha(Long usuarioId, Long fechaId);
+
+    void calcularPuntos(Long partidoId);
+
+    void actualizarPuntosTotales(Long usuarioId);
+
+    List<RankingDTO> getRankingPorFecha(Long fechaId);
 }

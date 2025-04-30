@@ -15,7 +15,6 @@ import java.util.*;
 @Service
 public class PronosticoService implements IPronosticoService {
 
-
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -25,35 +24,46 @@ public class PronosticoService implements IPronosticoService {
     @Autowired
     private PartidoRepository partidoRepository;
 
-
-
     public void calcularPuntos(Long partidoId) {
         List<Pronostico> pronosticos = pronosticoRepository.findByPartidoId(partidoId);
 
         for (Pronostico pronostico : pronosticos) {
             Partido partido = pronostico.getPartido();
-            String resultadoReal = partido.getGolesLocal() > partido.getGolesVisitante() ? "LOCAL" :
-                    partido.getGolesLocal() < partido.getGolesVisitante() ? "VISITANTE" : "EMPATE";
-
-            // Verificar si el pronóstico es correcto
-            if (pronostico.getResultadoPronosticado().equals(resultadoReal)) {
-                pronostico.setPuntosObtenidos(1); // Asignar 1 punto si acierta
-            } else {
-                pronostico.setPuntosObtenidos(0); // Asignar 0 puntos si no acierta
-            }
-
-            // Guardar el pronóstico actualizado
+            int puntos = calcularPuntosPronostico(pronostico.getResultadoPronosticado(), partido);
+            pronostico.setPuntosObtenidos(puntos);
             pronosticoRepository.save(pronostico);
+            actualizarPuntosTotales(pronostico.getUsuario().getId());
         }
     }
 
+    public void actualizarPuntosTotales(Long usuarioId) {
+        List<Pronostico> pronosticos = pronosticoRepository.findByUsuarioId(usuarioId);
 
+        int totalPuntos = pronosticos.stream()
+                .mapToInt(Pronostico::getPuntosObtenidos)
+                .sum();
 
-@Override
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setPuntosTotales(totalPuntos);
+        usuarioRepository.save(usuario);
+    }
+
+    private int calcularPuntosPronostico(String resultadoPronosticado, Partido partido) {
+        if (partido.getGolesLocal() == null || partido.getGolesVisitante() == null) {
+            return 0;
+        }
+
+        String resultadoReal = partido.getGolesLocal() > partido.getGolesVisitante() ? "LOCAL" :
+                partido.getGolesLocal() < partido.getGolesVisitante() ? "VISITANTE" : "EMPATE";
+
+        return resultadoPronosticado.equals(resultadoReal) ? 1 : 0;
+    }
+
+    @Override
     public List<Pronostico> findAll() {
         return pronosticoRepository.findAll();
     }
-
 
     @Override
     public Optional<Pronostico> findById(Long id) {
@@ -62,39 +72,29 @@ public class PronosticoService implements IPronosticoService {
 
     @Override
     public Pronostico save(Pronostico pronostico) {
-        // Buscar el usuario por ID
         Usuario usuario = usuarioRepository.findById(pronostico.getUsuario().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + pronostico.getUsuario().getId()));
 
-        // Buscar el partido por ID
         Partido partido = partidoRepository.findById(pronostico.getPartido().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Partido no encontrado con ID: " + pronostico.getPartido().getId()));
 
-        // Crear el pronóstico con los datos proporcionados
         Pronostico nuevoPronostico = new Pronostico();
         nuevoPronostico.setUsuario(usuario);
         nuevoPronostico.setPartido(partido);
         nuevoPronostico.setResultadoPronosticado(pronostico.getResultadoPronosticado());
 
-        // Calcular puntos obtenidos si el partido tiene resultado
-        if (partido.getGolesLocal() != null && partido.getGolesVisitante() != null) {
-            String resultadoReal = partido.getGolesLocal() > partido.getGolesVisitante() ? "LOCAL" :
-                    partido.getGolesLocal() < partido.getGolesVisitante() ? "VISITANTE" : "EMPATE";
+        int puntos = calcularPuntosPronostico(nuevoPronostico.getResultadoPronosticado(), partido);
+        nuevoPronostico.setPuntosObtenidos(puntos);
 
-            if (nuevoPronostico.getResultadoPronosticado().equals(resultadoReal)) {
-                nuevoPronostico.setPuntosObtenidos(1);
-            } else {
-                nuevoPronostico.setPuntosObtenidos(0);
-            }
-        } else {
-            nuevoPronostico.setPuntosObtenidos(0);
+        Pronostico guardado = pronosticoRepository.save(nuevoPronostico);
+
+        // Solo actualiza los puntos totales si ya hay resultado del partido
+        if (partido.getGolesLocal() != null && partido.getGolesVisitante() != null) {
+            actualizarPuntosTotales(usuario.getId());
         }
 
-        // Guardar el pronóstico
-        return pronosticoRepository.save(nuevoPronostico);
+        return guardado;
     }
-
-
 
     @Override
     public void deleteById(Long id) {
@@ -108,14 +108,12 @@ public class PronosticoService implements IPronosticoService {
 
     @Override
     public List<Pronostico> findByUsuarioAndFecha(Long usuarioId, Long fechaId) {
-        return pronosticoRepository.findByUsuarioAndFecha(usuarioId,fechaId);
+        return pronosticoRepository.findByUsuarioAndFecha(usuarioId, fechaId);
     }
 
     public List<RankingDTO> getRankingPorFecha(Long fechaId) {
-        // 1. Traer todos los pronósticos de la fecha
         List<Pronostico> pronosticos = pronosticoRepository.findByPartidoFechaId(fechaId);
 
-        // 2. Agrupar por usuario y sumar puntos
         Map<Long, Integer> puntosPorUsuario = new HashMap<>();
 
         for (Pronostico p : pronosticos) {
@@ -126,19 +124,17 @@ public class PronosticoService implements IPronosticoService {
             );
         }
 
-        // 3. Armar la lista de RankingDTO
         List<RankingDTO> ranking = new ArrayList<>();
 
         for (Map.Entry<Long, Integer> entry : puntosPorUsuario.entrySet()) {
             Long usuarioId = entry.getKey();
             String username = usuarioRepository.findById(usuarioId)
-                    .map(u -> u.getUsername())
+                    .map(Usuario::getUsername)
                     .orElse("Desconocido");
 
             ranking.add(new RankingDTO(usuarioId, username, entry.getValue()));
         }
 
-        // 4. Ordenar de mayor a menor por puntos
         ranking.sort(Comparator.comparingInt(RankingDTO::getTotalPuntos).reversed());
 
         return ranking;
