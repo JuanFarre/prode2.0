@@ -14,4 +14,6 @@ public interface IPartidoService {
     Partido save(Partido partido);
 
     void deleteById(Long id);
+
+    List<Partido> findByFechaId(Long fechaId);
 }

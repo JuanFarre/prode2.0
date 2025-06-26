@@ -33,7 +33,9 @@ public class UsuarioMapper {
                 usuario.getUsername(),
                 usuario.getEmail(),
                 usuario.getPuntosTotales(),
-                usuario.getRol()  // No hay conversión necesaria porque ya es un enum
+                usuario.getRol(),  // No hay conversión necesaria porque ya es un enum
+                usuario.isEnabled(),
+                usuario.getFechaRegistro()  // Si necesitas la fecha de registro
         );
     }
 }

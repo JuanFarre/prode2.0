@@ -26,30 +26,30 @@ public class PronosticoController {
     @GetMapping
     public List<PronosticoDTO> getAllPronosticos() {
         return pronosticoService.findAll().stream()
-                .map(pronosticoMapper::toDTO)
+                .map(PronosticoMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PronosticoDTO> getPronosticoById(@PathVariable Long id) {
         return pronosticoService.findById(id)
-                .map(pronostico -> ResponseEntity.ok(pronosticoMapper.toDTO(pronostico)))
+                .map(pronostico -> ResponseEntity.ok(PronosticoMapper.toDTO(pronostico)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public PronosticoDTO createPronostico(@RequestBody PronosticoDTO pronosticoDTO) {
-        Pronostico pronostico = pronosticoMapper.toEntity(pronosticoDTO);
-        return pronosticoMapper.toDTO(pronosticoService.save(pronostico));
+        Pronostico pronostico = PronosticoMapper.toEntity(pronosticoDTO);
+        return PronosticoMapper.toDTO(pronosticoService.save(pronostico));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PronosticoDTO> updatePronostico(@PathVariable Long id, @RequestBody PronosticoDTO pronosticoDTO) {
         return pronosticoService.findById(id)
                 .map(existingPronostico -> {
-                    Pronostico updatedPronostico = pronosticoMapper.toEntity(pronosticoDTO);
+                    Pronostico updatedPronostico = PronosticoMapper.toEntity(pronosticoDTO);
                     updatedPronostico.setId(existingPronostico.getId());
-                    return ResponseEntity.ok(pronosticoMapper.toDTO(pronosticoService.save(updatedPronostico)));
+                    return ResponseEntity.ok(PronosticoMapper.toDTO(pronosticoService.save(updatedPronostico)));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -69,7 +69,7 @@ public class PronosticoController {
             @PathVariable Long usuarioId, @PathVariable Long fechaId) {
         List<PronosticoDTO> pronosticos = pronosticoService.findByUsuarioAndFecha(usuarioId, fechaId)
                 .stream()
-                .map(pronosticoMapper::toDTO)
+                .map(PronosticoMapper::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(pronosticos);
     }

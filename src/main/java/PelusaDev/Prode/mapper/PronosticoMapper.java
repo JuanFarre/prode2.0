@@ -18,19 +18,22 @@ public class PronosticoMapper {
     @Autowired
     private PartidoRepository partidoRepository;
 
-    public Pronostico toEntity(PronosticoDTO dto) {
-        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId()).orElse(null);
-        Partido partido = partidoRepository.findById(dto.getPartidoId()).orElse(null);
-        return new Pronostico(dto.getId(), usuario, partido, dto.getResultadoPronosticado(), dto.getPuntosObtenidos());
+    public static Pronostico toEntity(PronosticoDTO dto) {
+        // NOTA: No se puede usar @Autowired en métodos estáticos, así que debes setear usuario y partido en el servicio
+        Pronostico pronostico = new Pronostico();
+        pronostico.setId(dto.getId());
+        pronostico.setResultadoPronosticado(dto.getResultadoPronosticado());
+        pronostico.setPuntosObtenidos(dto.getPuntosObtenidos());
+        return pronostico;
     }
 
-    public PronosticoDTO toDTO(Pronostico pronostico) {
+    public static PronosticoDTO toDTO(Pronostico pronostico) {
         return new PronosticoDTO(
                 pronostico.getId(),
-                pronostico.getUsuario().getId(),
-                pronostico.getPartido().getId(),
+                pronostico.getUsuario() != null ? pronostico.getUsuario().getId() : null,
+                pronostico.getPartido() != null ? pronostico.getPartido().getId() : null,
                 pronostico.getResultadoPronosticado(),
-                pronostico.getPuntosObtenidos() // Nuevo campo
+                pronostico.getPuntosObtenidos()
         );
     }
 }

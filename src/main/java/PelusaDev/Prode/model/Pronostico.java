@@ -31,4 +31,12 @@ public class Pronostico {
 
     @Column(nullable = false, name = "puntos_obtenidos")
     private int puntosObtenidos;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ticket_id")
+    private Ticket ticket;
+
+    public void setTicket(Ticket ticket) {
+        this.ticket = ticket;
+    }
 }

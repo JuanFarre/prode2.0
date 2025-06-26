@@ -33,4 +33,9 @@ public class PartidoService implements IPartidoService {
     public void deleteById(Long id) {
         partidoRepository.deleteById(id);
     }
+
+    @Override
+    public List<Partido> findByFechaId(Long fechaId) {
+        return partidoRepository.findByFechaId(fechaId);
+    }
 }

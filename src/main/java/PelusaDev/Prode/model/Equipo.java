@@ -21,5 +21,7 @@ public class Equipo {
     private String nombre;
     @Column(nullable = false)
     private String ciudad;
+    @Column(name = "escudo_url")
+    private String escudoUrl;
 
 }

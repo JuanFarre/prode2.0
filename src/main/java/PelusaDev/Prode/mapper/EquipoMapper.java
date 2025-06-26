@@ -10,6 +10,7 @@ public class EquipoMapper {
         dto.setId(equipo.getId());
         dto.setNombre(equipo.getNombre());
         dto.setCiudad(equipo.getCiudad());
+        dto.setEscudoUrl(equipo.getEscudoUrl());
         return dto;
     }
 
@@ -18,6 +19,7 @@ public class EquipoMapper {
         equipo.setId(dto.getId());
         equipo.setNombre(dto.getNombre());
         equipo.setCiudad(dto.getCiudad());
+        equipo.setEscudoUrl(dto.getEscudoUrl());
         return equipo;
     }
 }

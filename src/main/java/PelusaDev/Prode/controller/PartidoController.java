@@ -61,4 +61,12 @@ public class PartidoController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/fecha/{fechaId}")
+    public ResponseEntity<List<PartidoDTO>> getPartidosByFechaId(@PathVariable Long fechaId) {
+        List<PartidoDTO> partidos = partidoService.findByFechaId(fechaId).stream()
+                .map(partidoMapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(partidos);
+    }
 }
