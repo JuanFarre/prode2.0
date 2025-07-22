@@ -6,6 +6,7 @@ import PelusaDev.Prode.model.Partido;
 import PelusaDev.Prode.service.PartidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,23 +37,43 @@ public class PartidoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public PartidoDTO createPartido(@RequestBody PartidoDTO partidoDTO) {
         Partido partido = partidoMapper.toEntity(partidoDTO);
         return partidoMapper.toDTO(partidoService.save(partido));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PartidoDTO> updatePartido(@PathVariable Long id, @RequestBody PartidoDTO partidoDTO) {
         return partidoService.findById(id)
                 .map(existingPartido -> {
                     Partido updatedPartido = partidoMapper.toEntity(partidoDTO);
                     updatedPartido.setId(existingPartido.getId());
+                    
+                    // Si se están actualizando los goles, marcar como finalizado automáticamente
+                    if (partidoDTO.getGolesLocal() != null && partidoDTO.getGolesVisitante() != null) {
+                        updatedPartido.setFinalizado(true);
+                    }
+                    
                     return ResponseEntity.ok(partidoMapper.toDTO(partidoService.save(updatedPartido)));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}/finalizar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PartidoDTO> finalizarPartido(@PathVariable Long id) {
+        return partidoService.findById(id)
+                .map(partido -> {
+                    partido.setFinalizado(true);
+                    return ResponseEntity.ok(partidoMapper.toDTO(partidoService.save(partido)));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deletePartido(@PathVariable Long id) {
         return partidoService.findById(id)
                 .map(partido -> {

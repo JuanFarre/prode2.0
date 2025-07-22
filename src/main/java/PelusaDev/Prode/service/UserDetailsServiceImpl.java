@@ -23,6 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
         // Si se encuentra el usuario, se construye un objeto User de Spring Security con la información del usuario.
         String rol = user.getRol().name();
+        System.out.println("Usuario encontrado: " + username + ", Rol: " + rol);
         return User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())

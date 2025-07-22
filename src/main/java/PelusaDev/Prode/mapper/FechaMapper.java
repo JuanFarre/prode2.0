@@ -10,7 +10,8 @@ public class FechaMapper {
         return new FechaDTO(
                 fecha.getId(),
                 fecha.getNombre(),
-                fecha.getTorneo().getId()
+                fecha.getTorneo().getId(),
+                fecha.getEmpezada()
         );
     }
 
@@ -18,6 +19,7 @@ public class FechaMapper {
         Fecha fecha = new Fecha();
         fecha.setId(dto.getId());
         fecha.setNombre(dto.getNombre());
+        fecha.setEmpezada(dto.getEmpezada() != null ? dto.getEmpezada() : false);
         fecha.setTorneo(torneo);
         return fecha;
     }

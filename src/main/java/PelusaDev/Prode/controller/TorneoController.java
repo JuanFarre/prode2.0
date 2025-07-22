@@ -6,6 +6,7 @@ import PelusaDev.Prode.model.Torneo;
 import PelusaDev.Prode.service.TorneoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,12 +34,14 @@ public class TorneoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public TorneoDTO createTorneo(@RequestBody TorneoDTO torneoDTO) {
         Torneo torneo = TorneoMapper.toEntity(torneoDTO);
         return TorneoMapper.toDTO(torneoService.save(torneo));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TorneoDTO> updateTorneo(@PathVariable Long id, @RequestBody TorneoDTO torneoDTO) {
         return torneoService.findById(id)
                 .map(existingTorneo -> {
@@ -50,6 +53,7 @@ public class TorneoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteTorneo(@PathVariable Long id) {
         return torneoService.findById(id)
                 .map(torneo -> {

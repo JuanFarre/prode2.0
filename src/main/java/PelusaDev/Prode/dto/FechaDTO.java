@@ -10,4 +10,5 @@ public class FechaDTO {
     private Long id;
     private String nombre;
     private Long torneoId;
+    private Boolean empezada;
 }

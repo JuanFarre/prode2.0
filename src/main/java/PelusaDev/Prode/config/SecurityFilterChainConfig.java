@@ -2,6 +2,8 @@ package PelusaDev.Prode.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -9,7 +11,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@Configuration // Anotación que marca esta clase como una clase de configuración en Spring.
+@Configuration
+@EnableMethodSecurity // Habilita las anotaciones de seguridad a nivel de método como @PreAuthorize
 public class SecurityFilterChainConfig {
 
     private final AuthenticationEntryPoint authenticationEntryPoint; // Punto de entrada para manejar excepciones de autenticación.
@@ -25,30 +28,51 @@ public class SecurityFilterChainConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.cors(); // habilita el uso de configuración global definida en WebMvcConfigurer
+        // Configurar CORS y CSRF
+        httpSecurity.cors(cors -> cors.configure(httpSecurity)); // Configuración actualizada para Spring Security 6.1+
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(requestMatcher -> requestMatcher
-                // Rutas públicas
+                // ----- Autenticación -----
+                // Rutas públicas para autenticación y registro
                 .requestMatchers("/api/auth/login/**").permitAll()
                 .requestMatchers("/api/auth/registrar/**").permitAll()
                 .requestMatchers("/api/auth/verifyEmail/**").permitAll()
-                .requestMatchers("/api/usuarios/**").permitAll()
-                .requestMatchers("/api/productos/**").permitAll()
+                
+                // ----- Uploads y archivos estáticos -----
                 .requestMatchers("/api/uploads/**").permitAll()
-
-                // Rutas públicas del controlador EquipoController
-                .requestMatchers("/api/equipos").permitAll()          // GET all equipos
-                .requestMatchers("/api/equipos/*").permitAll()        // GET equipo por ID
-
-                // Rutas protegidas del controlador EquipoController
-                .requestMatchers("/api/equipos/crear").hasRole("ADMIN")
-                .requestMatchers("/api/equipos/editar/**").hasRole("ADMIN")
-                .requestMatchers("/api/equipos/eliminar/**").hasRole("ADMIN")
-
-                // Rutas de tickets: autenticado puede crear y ver sus tickets
+                
+                // ----- Equipos -----
+                // Lectura pública de equipos
+                .requestMatchers(HttpMethod.GET, "/api/equipos/**").permitAll()
+                
+                // ----- Fechas -----
+                // Lectura pública de fechas
+                .requestMatchers(HttpMethod.GET, "/api/fechas/**").permitAll()
+                
+                // ----- Partidos -----
+                // Lectura pública de partidos
+                .requestMatchers(HttpMethod.GET, "/api/partidos/**").permitAll()
+                
+                // ----- Torneos -----
+                // Lectura pública de torneos
+                .requestMatchers(HttpMethod.GET, "/api/torneos/**").permitAll()
+                
+                // ----- Usuarios -----
+                // Lectura pública de tablas generales
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/tabla-general/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/tabla-por-fecha/**").permitAll()
+                // Otras operaciones de usuarios requieren autenticación y se controlan con @PreAuthorize
+                .requestMatchers("/api/usuarios/**").authenticated()
+                
+                // ----- Pronósticos -----
+                // Requiere autenticación
+                .requestMatchers("/api/pronosticos/**").authenticated()
+                
+                // ----- Tickets -----
+                // Requiere autenticación
                 .requestMatchers("/api/tickets/**").authenticated()
-
+                
                 // Cualquier otra solicitud requiere autenticación
                 .anyRequest().authenticated()
         );

@@ -17,6 +17,9 @@ public class Fecha {
 
     private String nombre;
 
+    @Column(name = "empezada", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean empezada = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "torneo_id", nullable = false)
     private Torneo torneo;

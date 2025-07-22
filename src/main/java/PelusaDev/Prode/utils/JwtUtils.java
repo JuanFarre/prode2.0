@@ -78,4 +78,21 @@ public class JwtUtils {
         var claimsOptional = parseToken(jwtToken);
         return claimsOptional.map(claims -> claims.get("userId", Long.class));
     }
+    
+    /**
+     * Verifica si el token contiene un rol específico
+     * @param jwtToken El token JWT
+     * @param role El rol a verificar
+     * @return true si el token contiene el rol especificado, false en caso contrario
+     */
+    public static boolean hasRole(String jwtToken, String role) {
+        var claimsOptional = parseToken(jwtToken);
+        return claimsOptional
+                .map(claims -> {
+                    String userRole = claims.get("rol", String.class);
+                    // Verifica tanto el rol directo como con el prefijo ROLE_
+                    return role.equals(userRole) || ("ROLE_" + userRole).equals(role);
+                })
+                .orElse(false);
+    }
 }

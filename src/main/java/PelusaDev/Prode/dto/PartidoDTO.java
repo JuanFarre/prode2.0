@@ -17,4 +17,5 @@ public class PartidoDTO {
     private Long equipoVisitanteId;
     private Integer golesLocal;
     private Integer golesVisitante;
+    private Boolean finalizado;
 }

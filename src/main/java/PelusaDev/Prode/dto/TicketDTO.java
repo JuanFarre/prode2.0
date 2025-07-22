@@ -19,5 +19,5 @@ public class TicketDTO {
     private LocalDateTime fechaCreacion;
     private Long fechaId;
     private List<PronosticoDTO> pronosticos;
-    private int puntosTotales;
+    private Integer puntosTotales;
 }

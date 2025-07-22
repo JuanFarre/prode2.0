@@ -8,6 +8,7 @@ import PelusaDev.Prode.service.PronosticoService;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,9 +20,6 @@ public class PronosticoController {
 
     @Autowired
     private PronosticoService pronosticoService;
-
-    @Autowired
-    private PronosticoMapper pronosticoMapper;
 
     @GetMapping
     public List<PronosticoDTO> getAllPronosticos() {
@@ -44,6 +42,7 @@ public class PronosticoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PronosticoDTO> updatePronostico(@PathVariable Long id, @RequestBody PronosticoDTO pronosticoDTO) {
         return pronosticoService.findById(id)
                 .map(existingPronostico -> {
@@ -55,6 +54,7 @@ public class PronosticoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deletePronostico(@PathVariable Long id) {
         return pronosticoService.findById(id)
                 .map(pronostico -> {
@@ -73,10 +73,10 @@ public class PronosticoController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(pronosticos);
     }
+    
     @GetMapping("/ranking/fecha/{fechaId}")
     public ResponseEntity<List<RankingDTO>> getRankingPorFecha(@PathVariable Long fechaId) {
         List<RankingDTO> ranking = pronosticoService.getRankingPorFecha(fechaId);
         return ResponseEntity.ok(ranking);
     }
-
 }

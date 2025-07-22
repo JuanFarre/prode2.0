@@ -1,5 +1,8 @@
 package PelusaDev.Prode.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,10 +23,12 @@ public class Partido {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fecha_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Fecha fecha;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipo_local_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Equipo equipoLocal;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,6 +40,9 @@ public class Partido {
 
     @Column(nullable = true, name = "goles_visitante")
     private Integer golesVisitante;
+
+    @Column(nullable = false, name = "finalizado", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean finalizado = false;
 
 
 }

@@ -2,7 +2,7 @@ package PelusaDev.Prode.listener;
 
 import PelusaDev.Prode.model.Usuario;
 import PelusaDev.Prode.service.AuthServiceImpl;
-import jakarta.mail.AuthenticationFailedException;
+import PelusaDev.Prode.repository.UsuarioRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,15 @@ import java.util.UUID;
 public class RegistrationCompleteEventListener implements ApplicationListener<RegistrationCompleteEvent> {
 
     private static final Logger log = LoggerFactory.getLogger(RegistrationCompleteEventListener.class);
+    
+    // Activa esta bandera para simular el envío de correos sin intentar conectarse a Gmail
+    private static final boolean SIMULAR_ENVIO_CORREO = false;
 
     @Autowired
     private AuthServiceImpl userService;
+    
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -42,12 +48,31 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         log.info("URL de verificación generada: {}", url);
 
         try {
-            sendVerificationEmail(url);
+            if (SIMULAR_ENVIO_CORREO) {
+                simulateEmailSending(url);
+            } else {
+                sendVerificationEmail(url);
+            }
             log.info("Correo de verificación enviado a: {}", theUser.getEmail());
         } catch (UnsupportedEncodingException | MessagingException e) {
             log.error("Error al enviar el correo de verificación: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Método para simular el envío de correo sin realmente conectarse a Gmail
+     * Útil para pruebas de desarrollo
+     */
+    private void simulateEmailSending(String url) {
+        log.info("SIMULANDO ENVÍO DE CORREO - No se está intentando enviar realmente");
+        log.info("URL de verificación para {}: {}", theUser.getEmail(), url);
+        log.info("En producción, el usuario recibiría un correo con un enlace para hacer clic");
+        
+        // Auto-habilitar al usuario para pruebas de desarrollo
+        theUser.setEnabled(true);
+        usuarioRepository.save(theUser);
+        log.info("Usuario auto-habilitado para pruebas: {}", theUser.getEmail());
     }
 
     public void sendVerificationEmail(String url) throws UnsupportedEncodingException, MessagingException {
@@ -63,7 +88,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         MimeMessage message = mailSender.createMimeMessage();
         var messageHelper = new MimeMessageHelper(message);
 
-        messageHelper.setFrom("pruebatech370@gmail.com", senderName);
+        messageHelper.setFrom("juanfarre99@gmail.com", senderName);
         messageHelper.setTo(theUser.getEmail());
         messageHelper.setSubject(subject);
         messageHelper.setText(mailContent, true);
@@ -71,9 +96,12 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         log.info("Enviando correo...");
         try {
             mailSender.send(message);
-            log.info("Correo enviado exitosamente.");
+            log.info("Correo enviado exitosamente a: {}", theUser.getEmail());
         } catch (Exception e) {
-            log.error("Error inesperado al enviar el correo: {}", e.getMessage(), e);
+            log.error("Error al enviar el correo: {} - Mensaje: {}", e.getClass().getName(), e.getMessage());
+            if (e.getCause() != null) {
+                log.error("Causa: {} - {}", e.getCause().getClass().getName(), e.getCause().getMessage());
+            }
             throw new RuntimeException("Error al enviar el correo de verificación", e);
         }
     }

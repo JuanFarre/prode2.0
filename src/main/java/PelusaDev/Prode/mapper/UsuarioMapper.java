@@ -11,7 +11,12 @@ public class UsuarioMapper {
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
         usuario.setUsername(dto.getUsername());
-        usuario.setPassword(dto.getPassword());
+        
+        // Only set password if it's not null and not empty
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            usuario.setPassword(dto.getPassword());
+        }
+        
         usuario.setEmail(dto.getEmail());
         usuario.setPuntosTotales(dto.getPuntosTotales());
 
@@ -29,8 +34,8 @@ public class UsuarioMapper {
         return new UsuarioDTO(
                 usuario.getNombre(),
                 usuario.getApellido(),
-                usuario.getPassword(),
                 usuario.getUsername(),
+                null, // Never send password back to client
                 usuario.getEmail(),
                 usuario.getPuntosTotales(),
                 usuario.getRol(),  // No hay conversión necesaria porque ya es un enum

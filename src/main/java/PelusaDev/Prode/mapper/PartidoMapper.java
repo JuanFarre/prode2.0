@@ -22,10 +22,28 @@ public class PartidoMapper {
         Fecha fecha = fechaRepository.findById(dto.getFechaId()).orElse(null);
         Equipo equipoLocal = equipoRepository.findById(dto.getEquipoLocalId()).orElse(null);
         Equipo equipoVisitante = equipoRepository.findById(dto.getEquipoVisitanteId()).orElse(null);
-        return new Partido(dto.getId(), fecha, equipoLocal, equipoVisitante, dto.getGolesLocal(), dto.getGolesVisitante());
+        
+        Partido partido = new Partido();
+        partido.setId(dto.getId());
+        partido.setFecha(fecha);
+        partido.setEquipoLocal(equipoLocal);
+        partido.setEquipoVisitante(equipoVisitante);
+        partido.setGolesLocal(dto.getGolesLocal());
+        partido.setGolesVisitante(dto.getGolesVisitante());
+        partido.setFinalizado(dto.getFinalizado() != null ? dto.getFinalizado() : false);
+        
+        return partido;
     }
 
     public PartidoDTO toDTO(Partido partido) {
-        return new PartidoDTO(partido.getId(), partido.getFecha().getId(), partido.getEquipoLocal().getId(), partido.getEquipoVisitante().getId(), partido.getGolesLocal(), partido.getGolesVisitante());
+        PartidoDTO dto = new PartidoDTO();
+        dto.setId(partido.getId());
+        dto.setFechaId(partido.getFecha().getId());
+        dto.setEquipoLocalId(partido.getEquipoLocal().getId());
+        dto.setEquipoVisitanteId(partido.getEquipoVisitante().getId());
+        dto.setGolesLocal(partido.getGolesLocal());
+        dto.setGolesVisitante(partido.getGolesVisitante());
+        dto.setFinalizado(partido.getFinalizado());
+        return dto;
     }
 }

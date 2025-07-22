@@ -120,7 +120,7 @@ public class AuthController {
             // Si no se encuentra el token, redirige al usuario a la página de verificación con un mensaje de error
             if (theToken == null) {
                 System.out.println("Token no encontrado");
-                response.sendRedirect("http://localhost:3000/verification?status=invalid-token");
+                response.sendRedirect("http://localhost:4200/verification?status=invalid-token");
                 return;
             }
 
@@ -134,22 +134,22 @@ public class AuthController {
             switch (result) {
                 case "valido":
                     // Si el token es válido, redirige con un mensaje de éxito
-                    response.sendRedirect("http://localhost:3000/verification?status=success");
+                    response.sendRedirect("http://localhost:4200/verification?status=success");
                     break;
                 case "expired":
                     // Si el token ya ha expirado, redirige con un mensaje de expiración
-                    response.sendRedirect("http://localhost:3000/verification?status=expired");
+                    response.sendRedirect("http://localhost:4200/verification?status=expired");
                     break;
                 default:
                     // Si el token no es válido, redirige con un mensaje de error
-                    response.sendRedirect("http://localhost:3000/verification?status=invalid-token");
+                    response.sendRedirect("http://localhost:4200/verification?status=invalid-token");
             }
         } catch (Exception e) {
             // Si ocurre algún error durante el proceso de verificación, se captura la excepción
             // Se imprime el mensaje del error en la consola y se redirige al usuario a una página de error
             System.out.println("Error durante la verificación: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("http://localhost:3000/verification?status=error");
+            response.sendRedirect("http://localhost:4200/verification?status=error");
         }
     }
 
