@@ -56,7 +56,7 @@ public class TicketServiceImpl implements ITicketService {
                             break;
                     }
                     // Calcular puntos obtenidos
-                    if (partido.getGolesLocal() != null && partido.getGolesVisitante() != null) {
+                   if (partido.getGolesLocal() != null && partido.getGolesVisitante() != null && partido.getFinalizado()) {
                         String resultadoReal;
                         if (partido.getGolesLocal() > partido.getGolesVisitante()) {
                             resultadoReal = "LOCAL";

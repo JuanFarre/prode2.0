@@ -56,7 +56,13 @@ public class PartidoController {
                         updatedPartido.setFinalizado(true);
                     }
                     
-                    return ResponseEntity.ok(partidoMapper.toDTO(partidoService.save(updatedPartido)));
+                    // Guardar el partido actualizado
+                    Partido savedPartido = partidoService.save(updatedPartido);
+                    
+                    // Recalcular tickets afectados por este partido
+                    partidoService.recalcularTicketsDelPartido(id);
+                    
+                    return ResponseEntity.ok(partidoMapper.toDTO(savedPartido));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -89,5 +95,12 @@ public class PartidoController {
                 .map(partidoMapper::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(partidos);
+    }
+
+    @PostMapping("/{id}/recalcular-tickets")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> recalcularTickets(@PathVariable Long id) {
+        partidoService.recalcularTicketsDelPartido(id);
+        return ResponseEntity.ok().build();
     }
 }

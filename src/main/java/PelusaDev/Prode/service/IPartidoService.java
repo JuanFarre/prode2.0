@@ -16,4 +16,6 @@ public interface IPartidoService {
     void deleteById(Long id);
 
     List<Partido> findByFechaId(Long fechaId);
+
+    void recalcularTicketsDelPartido(Long partidoId);
 }
