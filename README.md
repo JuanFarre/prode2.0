@@ -15,8 +15,7 @@ API REST para sistema de pronósticos de partidos de fútbol con autenticación 
 - 🎯 **Sistema de pronósticos** con puntuación automática
 - 🏆 **Ranking de usuarios** (general y por fecha)
 - 🎫 **Sistema de tickets** para agrupar pronósticos
-- 📧 **Notificaciones por email** con Spring Mail
-- 📁 **Carga de archivos** (hasta 10MB)
+- 📧 **Registro por email** con Spring Mail
 - 🔒 **Seguridad robusta** con validaciones
 
 ## 🛠️ Tecnologías Utilizadas
