@@ -1,0 +1,33 @@
+# application.properties.example
+# Copia este archivo como application.properties y configura tus valores reales
+
+spring.application.name=Prode
+
+# Database Configuration - CAMBIAR POR TUS VALORES
+spring.datasource.url=jdbc:mysql://localhost:3306/TU_BASE_DE_DATOS?useSSL=false&serverTimezone=UTC
+spring.datasource.username=TU_USUARIO_DB
+spring.datasource.password=TU_PASSWORD_DB
+
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# Email Configuration - CAMBIAR POR TUS VALORES
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=TU_EMAIL@gmail.com
+# Para Gmail, generar contraseña de aplicación en:
+# Cuenta de Google → Seguridad → Verificación en 2 pasos → Contraseñas de aplicación
+spring.mail.password=TU_PASSWORD_DE_APLICACION_GMAIL
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+spring.mail.properties.mail.debug=true
+
+# File Upload
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+# JWT Configuration - CAMBIAR POR UNA CLAVE SEGURA
+# En producción, definir como variable de entorno: JWT_SECRET
+jwt.secret=GENERA_UNA_CLAVE_JWT_SUPER_SEGURA_DE_AL_MENOS_64_CARACTERES_AQUI
