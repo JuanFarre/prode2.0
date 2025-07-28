@@ -33,7 +33,10 @@ build/
 .vscode/
 
 ### Archivos sensibles - NO SUBIR ###
-src/main/resources/application.properties
+# Permitir application.properties (configurado para Railway)
+!src/main/resources/application.properties
+# Bloquear configuraciones locales con credenciales
+src/main/resources/application-local.properties
 .env
 .env.local
 .env.production
