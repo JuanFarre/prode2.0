@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -25,6 +26,9 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
     
     // Activa esta bandera para simular el envío de correos sin intentar conectarse a Gmail
     private static final boolean SIMULAR_ENVIO_CORREO = false;
+
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     @Autowired
     private AuthServiceImpl userService;
@@ -44,7 +48,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         userService.saveUserVerificationToken(theUser, verificationToken);
         log.info("Token de verificación generado y guardado: {}", verificationToken);
 
-        String url = "http://localhost:8080/api/auth/verifyEmail?token=" + verificationToken;
+        String url = baseUrl + "/api/auth/verifyEmail?token=" + verificationToken;
         log.info("URL de verificación generada: {}", url);
 
         try {
