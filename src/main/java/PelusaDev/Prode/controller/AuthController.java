@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @CrossOrigin
 public class AuthController {
+
+    @Value("${app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
 
     @Autowired
     private IAuthService authService; // Inyección de dependencia del servicio encargado de la lógica de autenticación.
@@ -112,6 +116,7 @@ public class AuthController {
     public void verifyEmail(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
         // Imprime el token recibido en la consola para verificación
         System.out.println("Recibida solicitud de verificación para token: " + token);
+        System.out.println("Frontend URL configurada: " + frontendUrl);
 
         try {
             // Busca el token de verificación en la base de datos utilizando el repositorio
@@ -120,7 +125,7 @@ public class AuthController {
             // Si no se encuentra el token, redirige al usuario a la página de verificación con un mensaje de error
             if (theToken == null) {
                 System.out.println("Token no encontrado");
-                response.sendRedirect("http://localhost:4200/verification?status=invalid-token");
+                response.sendRedirect(frontendUrl + "/verification?status=invalid-token");
                 return;
             }
 
@@ -134,22 +139,22 @@ public class AuthController {
             switch (result) {
                 case "valido":
                     // Si el token es válido, redirige con un mensaje de éxito
-                    response.sendRedirect("http://localhost:4200/verification?status=success");
+                    response.sendRedirect(frontendUrl + "/verification?status=success");
                     break;
                 case "expired":
                     // Si el token ya ha expirado, redirige con un mensaje de expiración
-                    response.sendRedirect("http://localhost:4200/verification?status=expired");
+                    response.sendRedirect(frontendUrl + "/verification?status=expired");
                     break;
                 default:
                     // Si el token no es válido, redirige con un mensaje de error
-                    response.sendRedirect("http://localhost:4200/verification?status=invalid-token");
+                    response.sendRedirect(frontendUrl + "/verification?status=invalid-token");
             }
         } catch (Exception e) {
             // Si ocurre algún error durante el proceso de verificación, se captura la excepción
             // Se imprime el mensaje del error en la consola y se redirige al usuario a una página de error
             System.out.println("Error durante la verificación: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("http://localhost:4200/verification?status=error");
+            response.sendRedirect(frontendUrl + "/verification?status=error");
         }
     }
 
