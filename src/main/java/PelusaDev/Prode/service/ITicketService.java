@@ -9,4 +9,5 @@ public interface ITicketService {
     TicketDTO getTicketById(Long id);
     void deleteTicket(Long id);
     List<TicketDTO> getTicketsByUsuarioId(Long usuarioId);
+    boolean existeTicketParaUsuarioYFecha(Long usuarioId, Long fechaId);
 }

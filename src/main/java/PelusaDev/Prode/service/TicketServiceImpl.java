@@ -106,4 +106,9 @@ public class TicketServiceImpl implements ITicketService {
                 .map(TicketMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean existeTicketParaUsuarioYFecha(Long usuarioId, Long fechaId) {
+        return ticketRepository.existsByUsuarioIdAndFechaId(usuarioId, fechaId);
+    }
 }

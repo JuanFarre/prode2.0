@@ -121,6 +121,27 @@ public class TicketController {
         return ResponseEntity.ok(ticket);
     }
 
+    @GetMapping("/verificar-ticket/{usuarioId}/{fechaId}")
+    public ResponseEntity<Boolean> verificarTicketExistente(
+        @PathVariable Long usuarioId, 
+        @PathVariable Long fechaId,
+        HttpServletRequest request) {
+        
+        Long authenticatedUserId = getUserIdFromRequest(request);
+        if (authenticatedUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        // Verificar que el usuario autenticado solo pueda consultar sus propios tickets
+        // o que sea admin
+        if (!authenticatedUserId.equals(usuarioId) && !hasAdminRole(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
+        boolean existe = ticketService.existeTicketParaUsuarioYFecha(usuarioId, fechaId);
+        return ResponseEntity.ok(existe);
+    }
+
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteTicket(@PathVariable Long id, HttpServletRequest request) {

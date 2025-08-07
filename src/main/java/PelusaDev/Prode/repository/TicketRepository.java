@@ -11,4 +11,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     
     @Query("SELECT DISTINCT t FROM Ticket t JOIN t.pronosticos p WHERE p.partido.id = :partidoId")
     List<Ticket> findByPronosticosPartidoId(@Param("partidoId") Long partidoId);
+    
+    boolean existsByUsuarioIdAndFechaId(Long usuarioId, Long fechaId);
 }
