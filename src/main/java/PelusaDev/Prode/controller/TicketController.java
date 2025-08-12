@@ -142,6 +142,30 @@ public class TicketController {
         return ResponseEntity.ok(existe);
     }
 
+    @GetMapping("/ranking/general")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN') or hasRole('USER') or hasRole('ADMIN') or isAuthenticated()")
+    public ResponseEntity<List<Map<String, Object>>> getRankingGeneral() {
+        try {
+            List<Map<String, Object>> ranking = ticketService.getRankingGeneral();
+            return ResponseEntity.ok(ranking);
+        } catch (Exception e) {
+            System.out.println("Error al obtener ranking general: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/ranking/fecha/{fechaId}")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN') or hasRole('USER') or hasRole('ADMIN') or isAuthenticated()")
+    public ResponseEntity<List<Map<String, Object>>> getRankingPorFecha(@PathVariable Long fechaId) {
+        try {
+            List<Map<String, Object>> ranking = ticketService.getRankingPorFecha(fechaId);
+            return ResponseEntity.ok(ranking);
+        } catch (Exception e) {
+            System.out.println("Error al obtener ranking por fecha: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteTicket(@PathVariable Long id, HttpServletRequest request) {

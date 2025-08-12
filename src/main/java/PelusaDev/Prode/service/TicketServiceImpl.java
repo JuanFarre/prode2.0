@@ -16,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 @Service
 public class TicketServiceImpl implements ITicketService {
@@ -110,5 +113,69 @@ public class TicketServiceImpl implements ITicketService {
     @Override
     public boolean existeTicketParaUsuarioYFecha(Long usuarioId, Long fechaId) {
         return ticketRepository.existsByUsuarioIdAndFechaId(usuarioId, fechaId);
+    }
+
+    @Override
+    public List<Map<String, Object>> getRankingGeneral() {
+        List<Ticket> tickets = ticketRepository.findAll();
+        return procesarTicketsParaRanking(tickets);
+    }
+
+    @Override
+    public List<Map<String, Object>> getRankingPorFecha(Long fechaId) {
+        List<Ticket> tickets = ticketRepository.findAll().stream()
+            .filter(ticket -> ticket.getFecha().getId().equals(fechaId))
+            .collect(Collectors.toList());
+        return procesarTicketsParaRanking(tickets);
+    }
+
+    private List<Map<String, Object>> procesarTicketsParaRanking(List<Ticket> tickets) {
+        // Agrupar tickets por usuario
+        Map<Long, List<Ticket>> ticketsPorUsuario = tickets.stream()
+            .collect(Collectors.groupingBy(ticket -> ticket.getUsuario().getId()));
+        
+        List<Map<String, Object>> ranking = new ArrayList<>();
+        
+        for (Map.Entry<Long, List<Ticket>> entry : ticketsPorUsuario.entrySet()) {
+            Long usuarioId = entry.getKey();
+            List<Ticket> ticketsUsuario = entry.getValue();
+            
+            // Calcular puntos totales del usuario
+            int puntosTotales = ticketsUsuario.stream()
+                .mapToInt(ticket -> ticket.getPuntosTotales() != null ? ticket.getPuntosTotales() : 0)
+                .sum();
+            
+            // Encontrar el mejor ticket del usuario
+            Ticket mejorTicket = ticketsUsuario.stream()
+                .max((t1, t2) -> Integer.compare(
+                    t1.getPuntosTotales() != null ? t1.getPuntosTotales() : 0,
+                    t2.getPuntosTotales() != null ? t2.getPuntosTotales() : 0
+                ))
+                .orElse(ticketsUsuario.get(0));
+            
+            // Obtener el username del usuario
+            String username = mejorTicket.getUsuario().getUsername();
+            
+            Map<String, Object> rankingItem = new HashMap<>();
+            rankingItem.put("usuarioId", usuarioId);
+            rankingItem.put("username", username);
+            rankingItem.put("puntosTotales", puntosTotales);
+            rankingItem.put("ticketId", mejorTicket.getId());
+            
+            ranking.add(rankingItem);
+        }
+        
+        // Ordenar por puntos (de mayor a menor)
+        ranking.sort((a, b) -> Integer.compare(
+            (Integer) b.get("puntosTotales"), 
+            (Integer) a.get("puntosTotales")
+        ));
+        
+        // Asignar posiciones
+        for (int i = 0; i < ranking.size(); i++) {
+            ranking.get(i).put("posicion", i + 1);
+        }
+        
+        return ranking;
     }
 }
